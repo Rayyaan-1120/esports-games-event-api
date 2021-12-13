@@ -1,0 +1,74 @@
+[
+    {
+        "name": "Fifa 30",
+        "id": 0,
+        "Totalrounds": 3,
+        "coverimage": "https://media.rawg.io/media/games/355/355d2ec5d6b87518228dc30a9bb0e70d.jpg",
+        "difficulty": "Normal",
+        "Max_Squad_Members": 1,
+        "ratings": 4.5,
+        "total_ratings": 120,
+        "images": [
+            "https://media.rawg.io/media/screenshots/955/9557c44f07a713d9b97776a19bbcd968.jpg",
+            "https://media.rawg.io/media/screenshots/0bf/0bfbf381171613bf7bf6e2e4eabd8f29.jpg",
+            "https://media.rawg.io/media/screenshots/fac/fac7b9405c7767558de8639bb44a0156.jpg",
+            "https://media.rawg.io/media/screenshots/d17/d17014c92b468bb850d882f646f8c5fb.jpg"
+        ],
+        "description": "HyperMotion integrates advanced full-team mocap data and machine learning to heighten gameplay in every match in FIFA 22, harnessing the power of next generation consoles to deliver the most realistic, responsive and fluid gameplay experience we’ve ever built. FIFA 22 brings a new season of innovation across every mode in the game; enjoy more consistency between the posts with a goalkeeper rewrite that brings more composure to the most important position on the pitch, live out your football dreams as you create and manage your custom club to glory in Career Mode, get rewarded for your flair with restyled gameplay in VOLTA FOOTBALL, welcome back football’s most memorable players as FIFA Ultimate Team™ Heroes, and feel the atmosphere of your next big game with the most immersive matchday experience ever seen in EA SPORTS FIFA.",
+        "start_dates": [
+            "Mar 30, 2022,10:00",
+            "Jul 05, 2022,10:00",
+            "Jul 31, 2022,10:00"
+        ],
+        "entryprice": 50,
+        "summary": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia"
+    },
+    {
+        "name": "CSGO-3",
+        "Totalrounds": 5,
+        "id": 1,
+        "coverimage": "https://media.rawg.io/media/games/736/73619bd336c894d6941d926bfd563946.jpg",
+        "difficulty": "Normal",
+        "Max_Squad_Members": 4,
+        "ratings": 4.3,
+        "total_ratings": 200,
+        "images": [
+            "https://media.rawg.io/media/screenshots/ff1/ff16661bb15f7969b44f6c4118870e44.jpg",
+            "https://media.rawg.io/media/screenshots/41b/41bb769d247412eac3336dec934aed72.jpg",
+            "https://media.rawg.io/media/screenshots/754/754545acdbf71f56e8902a07c7d20696.jpg",
+            "https://media.rawg.io/media/screenshots/fd8/fd873cab4c66db0b8e85d8a66e940074.jpg"
+        ],
+        "description": "<p>Counter-Strike is a multiplayer phenomenon in its simplicity. No complicated narratives to explain the source of the conflict, no futuristic and alien threats, but counter-terrorists against terrorists. Arena shooter at its core, CS:GO provides you with various methods of disposing enemies and reliant on cooperation within the team. During the round of the classical clash mode, you will gradually receive currency to purchase different equipment. Each player can carry a primary weapon, secondary pistol, knife and a set of grenades, which all can change the battle if wielded by the skilled player. <br />\nObjectives are clear and vary from map to map, from game mode to game mode. Stop the terrorists from planting explosives, stop the counter-terrorist from retrieving the hostages, kill everyone who isn’t you and just perform the best with.<br />\nCS:GO is one of the major cybersport discipline, which makes playing it more exciting to some players. Aside from purchasing the game, CS:GO is infamous for its loot case system, that requires players to purchase keys, in order to open said cases. Customization items consist of weapon skins, weapon stickers, and sprays that do not affect gameplay and have purely visual value to the player.</p>",
+        "start_dates": [
+            "Mar 30, 2022,10:00",
+            "Jul 05, 2022,10:00",
+            "Jul 31, 2022,10:00"
+        ],
+        "entryprice": 40,
+        "summary": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia"
+    },
+    {
+        "name": "Dota-3",
+        "Totalrounds": 3,
+        "id": 2,
+        "coverimage": "https://media.rawg.io/media/games/83f/83f6f70a7c1b86cd2637b029d8b42caa.jpg",
+        "difficulty": "Hard",
+        "Max_Squad_Members": 2,
+        "ratings": 4.1,
+        "total_ratings": 75,
+        "images": [
+            "https://media.rawg.io/media/screenshots/cef/cefd0f45c88be2d6e2ff7eed94c16cf3.jpg",
+            "https://media.rawg.io/media/screenshots/e2a/e2a1a6c8b07bcdb91d7c6050b16854c5.jpg",
+            "https://media.rawg.io/media/screenshots/55e/55e2c2ff16229eef87cfd8728ca537ac.jpg",
+            "https://media.rawg.io/media/screenshots/601/601ceb08d04da42f4de5d8b9016f31a6.jpg"
+        ],
+        "description": "<p>What used to be an unofficial modded map for the Warcraft 3, ended up being the most budgeted cybersport discipline, gathering millions of people to watch annual international championships.<br />\nMOBA genre started with the DOTA, Defense of the Ancients, which can be efficiently described as 5 vs 5 top-down action strategy game, during which players are tasked to destroy the enemy core while protecting their own.<br />\nPlayers can pick out of the roster of 112 heroes and battle on the single map while taking advantage of field vision, resources and item build that can either make heroes stronger or disable the enemy. DOTA 2 is still active, and receives updates weekly, reshaping metas and refreshing game balance, if by any chance some heroes became unreasonably strong. Each hero has not only a unique set of abilities but is fully customizable, through getting items for heroes after matches of through the trade. Not only heroes but terrain, couriers, that deliver items for you and even match announcers, that can be voiced by heroes, professional casters of just memorable characters from other forms of media.</p>",
+        "start_dates": [
+            "Mar 30, 2022,10:00",
+            "Jul 05, 2022,10:00",
+            "Jul 31, 2022,10:00"
+        ],
+        "entryprice": 30,
+        "summary": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia"
+    }
+]
