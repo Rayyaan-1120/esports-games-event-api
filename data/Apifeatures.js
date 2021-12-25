@@ -41,7 +41,7 @@ module.exports = class APIfeatures {
             this.query = this.query.select(reqfields);
         } else {
             this.query = this.query.select(
-                'name summary coverimage entryprice ratings specialgames'
+                'name summary coverimage entryprice ratings'
             );
         }
         return this;

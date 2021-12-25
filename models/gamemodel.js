@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const slugify = require('slugify')
 const validator = require('validator')
-
+const User = require('./Usermodel')
 
 
 
@@ -49,11 +49,11 @@ const gameschema = new mongoose.Schema({
     },
     coverimage: {
         type: String,
-        required: [true, 'Description is required']
+        // required: [true, 'Description is required']
     },
     images: {
         type: [String],
-        required: [true, 'Images are required'],
+        // required: [true, 'Images are required'],
 
     },
     createdAt: {
@@ -92,11 +92,67 @@ const gameschema = new mongoose.Schema({
             },
             message:'the discount price should be less than actual price'
         }
-    }
-})
+    },
+    winningPrice:{
+        type:[Number],
+        required:[true,'winning prices are required']
+    },
+    startLocation:{
+        //geoJson
+        type:{
+          type:String,
+          default:'Point',
+          enum:['Point']
+        },
+        coordinates:[Number],
+        address:String,
+        description:String
+    },
+    locations:[
+        {
+            type:{
+                type:String,
+                default:'Point',
+                enum:['Point']
+              },
+              coordinates:[Number],
+              address:String,
+              description:String,
+              dates:Date
+        }
+    ],
+    guides:[
+        {
+            type:mongoose.Schema.ObjectId,
+            ref:'User'
+        }
+    ]
+},
+{
+    toJSON:{virtuals:true},
+    toObject:{virtuals:true}
+}
+)
 
 
 //document middleware : runs on create command and save command not on insert may command
+
+
+//this is for embedding documents only works well with save not update
+
+// gameschema.pre('save',async function(next){
+//     const guides = this.guides.map(async id => await User.findById(id))
+//     this.guides = await Promise.all(guides)
+//     next()
+// })
+
+//virtual populate
+
+gameschema.virtual('reviews',{
+    ref:'Review',
+    foreignField:'game',
+    localField:'_id'
+})
 
 
 //type pre
@@ -120,6 +176,14 @@ gameschema.pre('save', function (next) {
 // eslint-disable-next-line
 gameschema.pre(/^find/,function(next){
     this.find({specialgames: {$ne:true}}) //this points to the query
+    next()
+})
+
+gameschema.pre(/^find/,function(next){
+    this.populate({
+        path:'guides',
+        select:'-__v'
+    });
     next()
 })
 

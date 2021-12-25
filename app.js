@@ -5,6 +5,7 @@ const AppError = require('./util/apperrorclass')
 const Globalerrormiddleware = require('./controller/Errorcontroller')
 const gamesrouter = require('./routes/gameroutes')
 const userrouter = require('./routes/userroutes')
+const reviewRouter = require('./routes/reviewroutes')
 
 const app = express()
 app.use(express.json())
@@ -37,6 +38,7 @@ const limiter = rateLimit({
 
 app.use('/api/v1/games-competetions',gamesrouter)
 app.use('/api/v1/users',userrouter)
+app.use('/api/v1/reviews',reviewRouter)
 
 //unhandled route handler
 app.all('*',(req,res,next) => {

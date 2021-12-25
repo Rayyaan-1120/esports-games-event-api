@@ -35,7 +35,7 @@ exports.getgames = catchAsync(async (req, res, next) => {
 //getsinglegame
 exports.getsinglegame = catchAsync(async (req, res, next) => {
 
-    const Singlegame = await Game.findById(req.params.id);
+    const Singlegame = await Game.findById(req.params.id).populate('reviews');
     if (!Singlegame) {
        return next(new AppError('invalid id has been passed', 404))
     }
