@@ -38,7 +38,7 @@ exports.Signup = catchAsync(async (req, res, next) => {
         email: req.body.email,
         password: req.body.password,
         confirmpassword: req.body.confirmpassword,
-        // passwordChange: req.body.passwordChange,
+        passwordChange: req.body.passwordChange,
         role: req.body.role
     })
 
@@ -93,9 +93,9 @@ exports.protectroutes = catchAsync(async (req, res, next) => {
     console.log(decoded.iat)
     console.log(decoded.id)
 
-    // if (Currentuser.changedPasswordAfter(decoded.iat)) {
-    //     return next(new AppError('you have recently changed the password please login again'))
-    // }
+    if (Currentuser.changedPasswordAfter(decoded.iat)) {
+        return next(new AppError('you have recently changed the password please login again',401))
+    }
 
     //storing whole data of user to Currentusr
     req.user = Currentuser
@@ -111,7 +111,7 @@ exports.restrictTo = (...roles) => {
     //roles is an array [admin,moderator] //likewise 
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
-            return next(new AppError('you are not allowed to do this act this is restricted only for admins!!!', 401))
+            return next(new AppError('you are not allowed to do this act this is restricted only for admins!!!', 403))
         }
 
         next()

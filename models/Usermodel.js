@@ -47,9 +47,7 @@ const Userschema = new mongoose.Schema({
         enum: ['user', 'moderator', 'contributor', 'admin'],
         default: 'user'
     },
-    passwordChange: {
-        type: Date,
-    },
+    passwordChange:Date,
     passwordResetToken: String,
     passwordResetExpire: Date,
     active:{
@@ -98,10 +96,11 @@ Userschema.methods.correctPassword = async function (candidatepassword, userpass
 
 Userschema.methods.changedPasswordAfter = function (jwttimestamp) {
     // converting time in seconds
-    const timeconvert = parseInt(this.passwordChange.getTime() / 1000, 10)
 
+    
     if (this.passwordChange) {
-        return jwttimestamp < timeconvert
+        const passwordchangetimestamp = parseInt(this.passwordChange.getTime() / 1000, 10)
+        return jwttimestamp < passwordchangetimestamp
     }
 
     //false means not changed password

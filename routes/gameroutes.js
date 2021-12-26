@@ -1,6 +1,7 @@
 const express = require('express')
 const gamecontroller = require('../controller/gamecontroller')
 const authcontroller = require('../controller/authcontroller')
+const reviewscontroller = require('../controller/reviewscontroller')
 
 
 
@@ -19,7 +20,9 @@ gamesrouter.route('/monthly-plans/:year').get(gamecontroller.getMonthlyplans)
 
 gamesrouter.route('/top-rated').get(gamecontroller.toprated, gamecontroller.getgames)
 
-gamesrouter.route('/').get(authcontroller.protectroutes, gamecontroller.getgames).post(gamecontroller.creategame)
-gamesrouter.route('/:id').get(gamecontroller.getsinglegame).patch(gamecontroller.updategame).delete(authcontroller.protectroutes, authcontroller.restrictTo('admin', 'moderator'), gamecontroller.deletegame)
+gamesrouter.route('/').get(authcontroller.protectroutes,gamecontroller.getgames).post(authcontroller.protectroutes,gamecontroller.creategame)
+gamesrouter.route('/:id').get(authcontroller.protectroutes,gamecontroller.getsinglegame).patch(authcontroller.protectroutes,gamecontroller.updategame).delete(authcontroller.protectroutes, authcontroller.restrictTo('admin', 'moderator'), gamecontroller.deletegame)
+
+gamesrouter.route('/:tourId/reviews').post(reviewscontroller.createReview)
 
 module.exports = gamesrouter
