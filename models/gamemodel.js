@@ -28,6 +28,7 @@ const gameschema = new mongoose.Schema({
         //validators
         min:[1,'the ratings should be greater than 1'],
         max:[5,'the ratings should be less than 5'],
+        set:val => Math.round(val * 10) /10
     },
     total_ratings: {
         type: Number,
@@ -134,6 +135,12 @@ const gameschema = new mongoose.Schema({
 }
 )
 
+//index reading 
+
+gameschema.index({entryprice:1})
+gameschema.index({slug:1})
+gameschema.index({startLocation:'2dsphere'})
+
 
 //document middleware : runs on create command and save command not on insert may command
 
@@ -189,11 +196,12 @@ gameschema.pre(/^find/,function(next){
 
 //aggregation piplelines middleware
 // eslint-disable-next-line
-gameschema.pre('aggregate',function(next){
-    console.log(this.pipeline())
-   this.pipeline().unshift({$match:{specialgames:{$ne:true}}})
-   next()
-})
+// gameschema.pre('aggregate',function(next){
+//     console.log(this.pipeline())
+//    this.pipeline().unshift({$match:{specialgames:{$ne:true}}})
+//    next()
+// })
+
 
 
 

@@ -2,12 +2,20 @@ const express = require('express')
 const gamecontroller = require('../controller/gamecontroller')
 const authcontroller = require('../controller/authcontroller')
 const reviewscontroller = require('../controller/reviewscontroller')
-
+const reviewroutes = require('./reviewroutes')
 
 
 const gamesrouter = express.Router()
 
 
+
+gamesrouter.use('/:gameId/reviews',reviewroutes)
+
+gamesrouter.route('/distance/center/:latlng/unit/:unit').get(gamecontroller.gamesdistance)
+
+
+gamesrouter.route('/games-within/:distance/center/:latlng/unit/:unit').get(gamecontroller.gameswithin)
+//'games-competetions?distance=300&center=-40,45&unit=miles
 
 //params middleware
 // gamesrouter.param('id',gamecontroller.checkId)
@@ -23,6 +31,7 @@ gamesrouter.route('/top-rated').get(gamecontroller.toprated, gamecontroller.getg
 gamesrouter.route('/').get(authcontroller.protectroutes,gamecontroller.getgames).post(authcontroller.protectroutes,gamecontroller.creategame)
 gamesrouter.route('/:id').get(authcontroller.protectroutes,gamecontroller.getsinglegame).patch(authcontroller.protectroutes,gamecontroller.updategame).delete(authcontroller.protectroutes, authcontroller.restrictTo('admin', 'moderator'), gamecontroller.deletegame)
 
-gamesrouter.route('/:tourId/reviews').post(reviewscontroller.createReview)
+
+//implementing nested routes
 
 module.exports = gamesrouter

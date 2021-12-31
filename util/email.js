@@ -25,3 +25,18 @@ const sendEmail = async options => {
 }
 
 module.exports = sendEmail
+
+//gmail
+
+// const sendemail = (options) => {
+
+// const transporter = nodemailer.createTransport({
+//      service:"Gmail",
+//      auth:{
+//          user:'rayyaan',
+//          pass:'123456789'
+//      }
+// })
+
+// }
+ 

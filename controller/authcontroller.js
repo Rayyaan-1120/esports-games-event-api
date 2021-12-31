@@ -58,7 +58,7 @@ exports.Login = catchAsync(async (req, res, next) => {
     }
 
     //check if user exits and the password is correct
-    const loggedinuser = await User.findOne({ email }).select('+password')
+    const loggedinuser = await User.findOne({ email }).select('+password -role')
     if (!loggedinuser || !await loggedinuser.correctPassword(password, loggedinuser.password)) {
         return next(new AppError('incorrect email or password', 401))
     }
@@ -90,8 +90,6 @@ exports.protectroutes = catchAsync(async (req, res, next) => {
         next(new AppError('the user belonging to the id is not valid', 401))
     }
     //check if user changed password after the token was issued
-    console.log(decoded.iat)
-    console.log(decoded.id)
 
     if (Currentuser.changedPasswordAfter(decoded.iat)) {
         return next(new AppError('you have recently changed the password please login again',401))
@@ -175,6 +173,7 @@ exports.resetpassword = catchAsync(async (req, res, next) => {
     console.log(user)
 
     //if token is not expired and the user exists,setiing a new password
+    //if token expires there will be no user
     if (!user) {
         return next(new AppError('user does not exists or the resettoken has been expired', 400))
     }
@@ -196,7 +195,6 @@ exports.resetpassword = catchAsync(async (req, res, next) => {
 exports.updatepassword = catchAsync(async (req, res, next) => {
     //Get the user from the collection
     const user = await User.findById(req.user.id).select('+password')
-    console.log(user)
     //check if the posted password is correct
     if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
         return next(new AppError('your current password is wrong', 401))

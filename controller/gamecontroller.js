@@ -2,8 +2,27 @@ const Game = require('../models/gamemodel');
 const catchAsync = require('../util/catchAsync')
 const APIfeatures = require('../data/Apifeatures')
 const AppError = require('../util/apperrorclass')
+const factory = require('./handlerfactory')
+const multer = require('multer')
+const sharp = require('sharp')
 
 
+
+
+const multerstorage = multer.memoryStorage()
+
+const multerfilter = (req,file,cb) => {
+    if(file.mimetype.startsWith('image')){
+        cb(null,true)
+    }else{
+        cb(new AppError('only images are allowed',400),false)
+    }
+}
+
+const upload = multer({
+    storage:multerstorage,
+    fileFilter:multerfilter
+})
 
 //alaising top rated games tours
 exports.toprated = (req, res, next) => {
@@ -13,87 +32,22 @@ exports.toprated = (req, res, next) => {
 };
 
 //getgames
-exports.getgames = catchAsync(async (req, res, next) => {
-
-    const features = new APIfeatures(Game.find(), req.query)
-        .filter()
-        .sorting()
-        .fieldslimiting()
-        .pagination();
-    const allgames = await features.query;
-    res.status(200).json({
-        status: 'success',
-        requestedat: req.requestTime,
-        data: {
-            allgames,
-        },
-    });
-
-
-});
+exports.getgames = factory.getAll(Game);
 
 //getsinglegame
-exports.getsinglegame = catchAsync(async (req, res, next) => {
-
-    const Singlegame = await Game.findById(req.params.id).populate('reviews');
-    if (!Singlegame) {
-       return next(new AppError('invalid id has been passed', 404))
-    }
-
-    res.status(200).json({
-        status: 'success',
-        data: {
-            Singlegame,
-        },
-    });
-});
+exports.getsinglegame = factory.getOne(Game,'reviews')
 
 //create a new game
 
-exports.creategame = catchAsync(async (req, res) => {
-    const newgame = await Game.create(req.body);
-
-    res.status(201).json({
-        status: 'success',
-        data: {
-            newgame,
-        },
-    });
-});
+exports.creategame = factory.createone(Game)
 
 //updating a game
 
-exports.updategame = catchAsync(async (req, res,next) => {
-    const updatedgame = await Game.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-    });
-    if (!updatedgame) {
-        return next(new AppError('invalid id has been passed', 404))
-     }
-    res.status(200).json({
-        status: 'success',
-        data: {
-            updatedgame,
-        },
-    });
-});
+exports.updategame = factory.updateone(Game)
 
 //deleting a game
 
-exports.deletegame = catchAsync(async (req, res,next) => {
-    const deleted = await Game.findByIdAndDelete(req.params.id);
-    
-    if (!deleted) {
-        return next(new AppError('invalid id has been passed', 404))
-     }
-
-    res.status(204).json({
-        status: 'success',
-        data: null,
-    });
-
-});
+exports.deletegame = factory.deleteone(Game)
 
 //aggregation pipeline methods
 
@@ -178,6 +132,75 @@ exports.getMonthlyplans = catchAsync(async (req, res) => {
         },
     });
 });
+
+
+//34.091840, -118.178312
+exports.gameswithin = catchAsync(async(req,res,next) => {
+    const {distance,latlng,unit} = req.params;
+    const [lat,lng] = latlng.split(',')
+
+    if(!lat || !lng){
+        return next(new AppError('please provide the corect in the format lat,lng',400))
+    }
+
+    console.log(lat,lng,distance,unit)
+
+    const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+    const games = await Game.find({startLocation:{$geoWithin:{$centerSphere:[[lng,lat],radius]}}})
+
+    res.status(200).json({
+        status: 'success',
+        results:games.length,
+
+        data:{
+            data:games
+        }
+    })
+})
+
+exports.gamesdistance = catchAsync(async(req,res,next) => {
+    const {latlng,unit} = req.params;
+    const [lat,lng] = latlng.split(',')
+
+    if(!lat || !lng){
+        return next(new AppError('please provide the corect in the format lat,lng',400))
+    }
+
+    console.log(lat,lng,unit)
+
+
+    const games = await Game.aggregate([
+        {
+            $geoNear:{
+                near:{
+                    typr:'Point',
+                    coordinates:[lng * 1,lat * 1]
+                },
+                distanceField:'distance',
+                distanceMultiplier:0.001
+            }
+        },
+        {
+            $project:{
+                distance:1,
+                name:1
+            }
+        }
+    ])
+
+    console.log(games)
+
+    res.status(200).json({
+        status: 'success',
+        results:games.length,
+        data:{
+            data:games
+        }
+    })
+})
+
+
 
 //
 // const readgames = JSON.parse(fs.readFileSync('./data/displaydata.json','utf-8'))
