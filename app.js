@@ -24,6 +24,10 @@ const app = express()
 //security http headers setting middleware
 app.use(helmet())
 
+const imagedir = require('path').join(__dirname, '/images')
+
+app.use(express.static(imagedir))
+
 
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))

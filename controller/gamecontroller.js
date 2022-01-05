@@ -24,6 +24,40 @@ const upload = multer({
     fileFilter:multerfilter
 })
 
+
+exports.uploadgameimages = upload.fields([
+    {name:'coverimage',maxCount:1},
+    {name:'images',maxcount:3}
+])
+
+exports.resizegameimages = catchAsync(async (req,res,next) => {
+    console.log(req.files.coverimage[0].buffer)
+
+    if(!req.files.coverimage || !req.files.images) return next()
+
+
+    req.body.coverimage = `game-${req.params.id}-${Date.now()}-cover.jpeg`
+    
+    await sharp(req.files.coverimage[0].buffer).resize(500,500).toFormat('jpeg').jpeg({quality:90}).toFile(`images/gamecoverimages/${req.body.coverimage}`)
+
+
+    req.body.images = []
+
+    await Promise.all(req.files.images.map(async(file,i) => {
+        const filename = `game-${req.params.id}-${Date.now()}-${i + 1}.jpeg`
+
+    await sharp(file.buffer).resize(500,500).toFormat('jpeg').jpeg({quality:90}).toFile(`images/gameuploadedimages/${filename}`)
+
+    req.body.images.push(filename)
+
+    }))
+
+
+    console.log(req.body.images)
+
+    next()
+})
+
 //alaising top rated games tours
 exports.toprated = (req, res, next) => {
     req.query.limit = '5';

@@ -57,6 +57,15 @@ const Userschema = new mongoose.Schema({
         type:Boolean,
         default:true,
         select:false
+    },
+    verified:{
+        type:Boolean,
+        default:false,
+        select:false
+    },
+    confirmationcode:{
+        type:Number,
+        select:false
     }
 
 })

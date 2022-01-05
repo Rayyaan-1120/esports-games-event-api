@@ -6,8 +6,8 @@ const handlecasterrordb = err => {
 }
 
 const handleduplicatefielderrdb = err => {
-    const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0]
-    const message = `Duplicate field value with ${value} please enter valid values`
+    // const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0]
+    const message = `Duplicate field value with please enter valid values`
     return new AppError(message, 400)
 
 }

@@ -52,7 +52,8 @@ userrouter.get(
 
 //authentication special routes
 
-userrouter.post('/signup', authcontroller.Signup); //working fine
+userrouter.post(['/signup',], authcontroller.Sendsignupemail); //working fine
+userrouter.post('/signup/:confirmationcode', authcontroller.Signup); //working fine
 userrouter.post('/login', authcontroller.Login); //working fine
 userrouter.post('/forgotpassword', authcontroller.forgotpassword); //working fine
 userrouter.patch('/resetpassword/:token', authcontroller.resetpassword); //working fine
