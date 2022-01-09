@@ -31,7 +31,6 @@ exports.uploadgameimages = upload.fields([
 ])
 
 exports.resizegameimages = catchAsync(async (req,res,next) => {
-    console.log(req.files.coverimage[0].buffer)
 
     if(!req.files.coverimage || !req.files.images) return next()
 

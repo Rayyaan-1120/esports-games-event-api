@@ -9,6 +9,7 @@ const Globalerrormiddleware = require('./controller/Errorcontroller')
 const gamesrouter = require('./routes/gameroutes')
 const userrouter = require('./routes/userroutes')
 const reviewRouter = require('./routes/reviewroutes')
+const registerrouter = require('./routes/registerroutes')
 const hpp = require('hpp')
 const cookieParser = require('cookie-parser')
 
@@ -35,13 +36,13 @@ if(process.env.NODE_ENV === 'development'){
 
 
 //rate limiting with express rate limit to prevent multiple request from the same ip
-const limiter = rateLimit({
-    max:100,
-    windowMs:60 * 60 * 1000,
-    message:'Too many request from this IP, please try again in an hour'
-})
+// const limiter = rateLimit({
+//     max:100,
+//     windowMs:60 * 60 * 1000,
+//     message:'Too many request from this IP, please try again in an hour'
+// })
 
-app.use('/api',limiter)
+// app.use('/api',limiter)c
 
 //body parser,reading data from body into req.body
 
@@ -75,6 +76,7 @@ app.use(hpp({
 app.use('/api/v1/games-competetions',gamesrouter)
 app.use('/api/v1/users',userrouter)
 app.use('/api/v1/reviews',reviewRouter)
+app.use('/api/v1/register',registerrouter)
 
 //unhandled route handler
 app.all('*',(req,res,next) => {

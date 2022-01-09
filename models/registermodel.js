@@ -11,10 +11,6 @@ const registerschema = new mongoose.Schema({
         ref:'User', 
         required:[true,'registeration must belong to a user']
     },
-    price:{
-        type:Number,
-        required: [true, 'Registered Event price is mandatory']
-    },
     registeredat:{
         type:Date,
         default:Date.now()
@@ -24,14 +20,18 @@ const registerschema = new mongoose.Schema({
         default:false
     }
 })
+registerschema.index({game:1,user:1})
 
 registerschema.pre(/^find/,function(next){
-    this.populate('user').populate({
-        path:'Game',
+    this.populate({
+        path:'game',
         select:'name'
+    }).populate({
+        path:'user',
     })
+    next()
 })
 
-const Register = mongoose.Model('Register',registerschema)
+const Register = mongoose.model('Register',registerschema)
 
 module.exports = Register

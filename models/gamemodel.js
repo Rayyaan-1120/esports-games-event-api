@@ -122,12 +122,33 @@ const gameschema = new mongoose.Schema({
               dates:Date
         }
     ],
+    totalseats:{
+      type:Number,
+      required:[true,'please definr the total number of seats'],
+    },
+    registerations:[
+      {
+          type:mongoose.Schema.ObjectId,
+          ref:'User', 
+          required:[true,'registeration must belong to a user'],
+          validate:{
+              validator:function(val){
+                return  val.length <= this.totalseats
+              },
+              message:'all seats are reserved please wait until the next event happens'
+          }
+      }
+    ],
     guides:[
         {
             type:mongoose.Schema.ObjectId,
             ref:'User'
         }
-    ]
+    ],
+    seatsbooked:{
+        type:Number,
+        default:0
+    }
 },
 {
     toJSON:{virtuals:true},
@@ -190,7 +211,14 @@ gameschema.pre(/^find/,function(next){
     this.populate({
         path:'guides',
         select:'-__v'
-    });
+    })
+    next()
+})
+
+gameschema.pre('findOne',function(next){
+    this.populate({
+        path:'registerations'
+    })
     next()
 })
 
