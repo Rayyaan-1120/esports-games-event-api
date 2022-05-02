@@ -42,7 +42,6 @@ const reviewmodel = new mongoose.Schema({
 //query middleware function
 
 
-reviewmodel.index({game:1,user:1},{unique:true})
 reviewmodel.pre(/^find/,function(next){
     this.populate({
         path:'user',

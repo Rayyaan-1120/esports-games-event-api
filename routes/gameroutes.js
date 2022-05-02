@@ -8,6 +8,7 @@ const gamesrouter = express.Router();
 
 gamesrouter.use('/:gameId/reviews', reviewroutes);
 
+gamesrouter.route('/trying').get(gamecontroller.tryingmethod)
 gamesrouter
   .route('/distance/center/:latlng/unit/:unit')
   .get(gamecontroller.gamesdistance);
@@ -49,6 +50,7 @@ gamesrouter
     authcontroller.restrictTo('admin', 'moderator'),
     gamecontroller.deletegame
   );
+
 
 //implementing nested routes
 

@@ -163,7 +163,7 @@ gameschema.index({slug:1})
 gameschema.index({startLocation:'2dsphere'})
 
 
-//document middleware : runs on create command and save command not on insert may command
+// document middleware : runs on create command and save command not on insert may command
 
 
 //this is for embedding documents only works well with save not update
@@ -191,10 +191,10 @@ gameschema.pre('save', function (next) {
 
 //type post
 
-// gameschema.post('save',(next,doc) => {
-//     console.log(doc)
-//     next()
-// })
+gameschema.post('save',(next,doc) => {
+    console.log(doc)
+    next()
+})
 
 
 /////////////////
@@ -219,6 +219,11 @@ gameschema.pre('findOne',function(next){
     this.populate({
         path:'registerations'
     })
+    next()
+})
+
+gameschema.pre('aggregate',function(next){
+    console.log(this.pipeline())
     next()
 })
 

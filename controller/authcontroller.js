@@ -121,9 +121,12 @@ exports.protectroutes = catchAsync(async (req, res, next) => {
     );
   }
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  console.log(decoded);
   //check if user still exists
 
   const Currentuser = await User.findById(decoded.id);
+  console.log(Currentuser);
   if (!Currentuser) {
     next(new AppError('the user belonging to the id is not valid', 401));
   }

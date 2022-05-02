@@ -1,239 +1,302 @@
 const Game = require('../models/gamemodel');
-const catchAsync = require('../util/catchAsync')
-const APIfeatures = require('../data/Apifeatures')
-const AppError = require('../util/apperrorclass')
-const factory = require('./handlerfactory')
-const multer = require('multer')
-const sharp = require('sharp')
+const catchAsync = require('../util/catchAsync');
+const APIfeatures = require('../data/Apifeatures');
+const AppError = require('../util/apperrorclass');
+const factory = require('./handlerfactory');
+const multer = require('multer');
+const sharp = require('sharp');
 
+const multerstorage = multer.memoryStorage();
 
-
-
-const multerstorage = multer.memoryStorage()
-
-const multerfilter = (req,file,cb) => {
-    if(file.mimetype.startsWith('image')){
-        cb(null,true)
-    }else{
-        cb(new AppError('only images are allowed',400),false)
-    }
-}
+const multerfilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('only images are allowed', 400), false);
+  }
+};
 
 const upload = multer({
-    storage:multerstorage,
-    fileFilter:multerfilter
-})
-
+  storage: multerstorage,
+  fileFilter: multerfilter,
+});
 
 exports.uploadgameimages = upload.fields([
-    {name:'coverimage',maxCount:1},
-    {name:'images',maxcount:3}
-])
+  { name: 'coverimage', maxCount: 1 },
+  { name: 'images', maxcount: 3 },
+]);
 
-exports.resizegameimages = catchAsync(async (req,res,next) => {
+exports.resizegameimages = catchAsync(async (req, res, next) => {
+  if (!req.files.coverimage || !req.files.images) return next();
 
-    if(!req.files.coverimage || !req.files.images) return next()
+  req.body.coverimage = `game-${req.params.id}-${Date.now()}-cover.jpeg`;
 
+  await sharp(req.files.coverimage[0].buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`images/gamecoverimages/${req.body.coverimage}`);
 
-    req.body.coverimage = `game-${req.params.id}-${Date.now()}-cover.jpeg`
-    
-    await sharp(req.files.coverimage[0].buffer).resize(500,500).toFormat('jpeg').jpeg({quality:90}).toFile(`images/gamecoverimages/${req.body.coverimage}`)
+  req.body.images = [];
 
+  await Promise.all(
+    req.files.images.map(async (file, i) => {
+      const filename = `game-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
 
-    req.body.images = []
+      await sharp(file.buffer)
+        .resize(500, 500)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`images/gameuploadedimages/${filename}`);
 
-    await Promise.all(req.files.images.map(async(file,i) => {
-        const filename = `game-${req.params.id}-${Date.now()}-${i + 1}.jpeg`
+      req.body.images.push(filename);
+    })
+  );
 
-    await sharp(file.buffer).resize(500,500).toFormat('jpeg').jpeg({quality:90}).toFile(`images/gameuploadedimages/${filename}`)
+  console.log(req.body.images);
 
-    req.body.images.push(filename)
-
-    }))
-
-
-    console.log(req.body.images)
-
-    next()
-})
+  next();
+});
 
 //alaising top rated games tours
 exports.toprated = (req, res, next) => {
-    req.query.limit = '5';
-    req.query.sort = '-ratings';
-    next();
+  req.query.limit = '5';
+  req.query.sort = '-ratings';
+  next();
 };
 
 //getgames
 exports.getgames = factory.getAll(Game);
 
 //getsinglegame
-exports.getsinglegame = factory.getOne(Game,'reviews')
+exports.getsinglegame = factory.getOne(Game, 'reviews');
 
 //create a new game
 
-exports.creategame = factory.createone(Game)
+exports.creategame = factory.createone(Game);
 
 //updating a game
 
-exports.updategame = factory.updateone(Game)
+exports.updategame = factory.updateone(Game);
 
 //deleting a game
 
-exports.deletegame = factory.deleteone(Game)
+exports.deletegame = factory.deleteone(Game);
 
 //aggregation pipeline methods
 
 exports.getGamestats = catchAsync(async (req, res) => {
-    const stats = await Game.aggregate([
-        {
-            $match: { ratings: { $gte: 4 } },
-        },
-        {
-            $group: {
-                _id: '$difficulty',
-                num: { $sum: 1 },
-                sumReviews: { $sum: '$total_ratings' },
-                avgRating: { $avg: '$ratings' },
-                avgPrice: { $avg: '$entryprice' },
-                minPrice: { $min: '$entryprice' },
-                maxPrice: { $max: '$entryprice' },
-            },
-        },
-        {
-            $sort: {
-                avgPrice: 1,
-            },
-        },
-    ]);
+  const stats = await Game.aggregate([
+    {
+      $match: { ratings: { $gte: 4 } },
+    },
+    {
+      $group: {
+        _id: '$difficulty',
+        num: { $sum: 1 },
+        sumReviews: { $sum: '$total_ratings' },
+        avgRating: { $avg: '$ratings' },
+        avgPrice: { $avg: '$entryprice' },
+        minPrice: { $min: '$entryprice' },
+        maxPrice: { $max: '$entryprice' },
+      },
+    },
+    {
+      $sort: {
+        avgPrice: 1,
+      },
+    },
+  ]);
 
-    res.status(200).json({
-        status: 'success',
-        data: {
-            stats,
-        },
-    });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      stats,
+    },
+  });
 });
 
 //realtime business logic
 
 exports.getMonthlyplans = catchAsync(async (req, res) => {
+  const year = req.params.year * 1;
+  console.log(year);
+  console.log(new Date(`${year}-01-01`));
+  console.log(new Date(`${year}-12-31`));
 
-    const year = req.params.year * 1;
-    console.log(year);
-    console.log(new Date(`${year}-01-01`));
-    console.log(new Date(`${year}-12-31`));
+  const newstats = await Game.aggregate([
+    {
+      $unwind: '$start_dates',
+    },
+    {
+      $match: {
+        start_dates: {
+          $gte: new Date(`${year}-01-01`),
+          $lte: new Date(`${year}-12-31`),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: { $month: '$start_dates' },
+        numGames: { $sum: 1 },
+        games: { $push: '$name' },
+      },
+    },
+    {
+      $addFields: { month: '$_id' },
+    },
+    {
+      $project: {
+        _id: 0,
+      },
+    },
+    {
+      $sort: {
+        numGames: 1,
+      },
+    },
+  ]);
 
-    const newstats = await Game.aggregate([
-        {
-            $unwind: '$start_dates',
-        },
-        {
-            $match: {
-                start_dates: {
-                    $gte: new Date(`${year}-01-01`),
-                    $lte: new Date(`${year}-12-31`),
-                },
-            },
-        },
-        {
-            $group: {
-                _id: { $month: '$start_dates' },
-                numGames: { $sum: 1 },
-                games: { $push: '$name' },
-            },
-        },
-        {
-            $addFields: { month: '$_id' },
-        },
-        {
-            $project: {
-                _id: 0,
-            },
-        },
-        {
-            $sort: {
-                numGames: 1,
-            },
-        },
-    ]);
-
-    res.status(200).json({
-        status: 'success',
-        data: {
-            newstats,
-        },
-    });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      newstats,
+    },
+  });
 });
 
-
 //34.091840, -118.178312
-exports.gameswithin = catchAsync(async(req,res,next) => {
-    const {distance,latlng,unit} = req.params;
-    const [lat,lng] = latlng.split(',')
+exports.gameswithin = catchAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
 
-    if(!lat || !lng){
-        return next(new AppError('please provide the corect in the format lat,lng',400))
-    }
+  if (!lat || !lng) {
+    return next(
+      new AppError('please provide the corect in the format lat,lng', 400)
+    );
+  }
 
-    console.log(lat,lng,distance,unit)
+  console.log(lat, lng, distance, unit);
 
-    const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
 
-    const games = await Game.find({startLocation:{$geoWithin:{$centerSphere:[[lng,lat],radius]}}})
+  const games = await Game.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
 
-    res.status(200).json({
-        status: 'success',
-        results:games.length,
+  res.status(200).json({
+    status: 'success',
+    results: games.length,
 
-        data:{
-            data:games
-        }
-    })
-})
+    data: {
+      data: games,
+    },
+  });
+});
 
-exports.gamesdistance = catchAsync(async(req,res,next) => {
-    const {latlng,unit} = req.params;
-    const [lat,lng] = latlng.split(',')
+exports.gamesdistance = catchAsync(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
 
-    if(!lat || !lng){
-        return next(new AppError('please provide the corect in the format lat,lng',400))
-    }
+  if (!lat || !lng) {
+    return next(
+      new AppError('please provide the corect in the format lat,lng', 400)
+    );
+  }
 
-    console.log(lat,lng,unit)
+  console.log(lat, lng, unit);
 
-
-    const games = await Game.aggregate([
-        {
-            $geoNear:{
-                near:{
-                    typr:'Point',
-                    coordinates:[lng * 1,lat * 1]
-                },
-                distanceField:'distance',
-                distanceMultiplier:0.001
-            }
+  const games = await Game.aggregate([
+    {
+      $geoNear: {
+        near: {
+          typr: 'Point',
+          coordinates: [lng * 1, lat * 1],
         },
-        {
-            $project:{
-                distance:1,
-                name:1
-            }
-        }
-    ])
+        distanceField: 'distance',
+        distanceMultiplier: 0.001,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
 
-    console.log(games)
+  console.log(games);
 
-    res.status(200).json({
-        status: 'success',
-        results:games.length,
-        data:{
-            data:games
-        }
-    })
-})
+  res.status(200).json({
+    status: 'success',
+    results: games.length,
+    data: {
+      data: games,
+    },
+  });
+});
 
+exports.tryingmethod = catchAsync(async function (req, res, next) {
+  const Matchedresult = await Game.aggregate([
+    //match operator is equivalent to find operators all queries works same
+    {
+      $match: { specialgames: { $ne: true } },
+    },
+    // {
+    //     $unwind:"$registerations"
+    // },
+    // {
+    //     $group:{_id:"$registerations",}
+    // },
+    // {
+    //     $project:{name:1,_id:0,registerations:1}
+    // }
+    {
+      $group: {
+        _id: {
+        //   id: '$_id',
+        // Totalrounds: '$Totalrounds',
+        //   name: '$name',
+          price: '$entryprice',
+        //   locations: '$startLocation.coordinates',
+        //   registerations: '$registerations',
+        },
+        count: { $avg: "$price" },
+        games: { $push: '$name' },
+      },
+    },
 
+    // {
+    //     $lookup:{
+    //         "from":"registerations",
+    //         "localField":"registerations",
+    //         "foreignField": "user",
+    //         "as":"reg"
+    //     }
+    // }
+    //count aggregate method
+    // {
+    //     $count:"allDocumentsCount"
+    // }
+    // {
+    //     $sort:{"_id.name":1}
+    // }
+    // {
+    //     $limit:3
+    // },
+  ]);
+
+//   await Game.populate(Matchedresult);
+
+  res.status(200).json({
+    status: 'success',
+    results: Matchedresult.length,
+    data: {
+      data: Matchedresult,
+    },
+  });
+});
 
 //
 // const readgames = JSON.parse(fs.readFileSync('./data/displaydata.json','utf-8'))
@@ -260,49 +323,48 @@ exports.gamesdistance = catchAsync(async(req,res,next) => {
 //    next()
 // }
 
+//filtering
+// const gameobj = { ...req.query }
+// const excludedfields = ['page', 'limit', 'sort', 'fields']
+// excludedfields.forEach(el => delete gameobj[el])
 
- //filtering
-        // const gameobj = { ...req.query }
-        // const excludedfields = ['page', 'limit', 'sort', 'fields']
-        // excludedfields.forEach(el => delete gameobj[el])
+// //advanced filtering
+// let querystring = JSON.stringify(gameobj)
+// querystring = querystring.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`)
 
-        // //advanced filtering
-        // let querystring = JSON.stringify(gameobj)
-        // querystring = querystring.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`)
+// let query = Game.find(JSON.parse(querystring))
 
-        // let query = Game.find(JSON.parse(querystring))
+//sorting
+// if (req.query.sort) {
+//     const sortby = req.query.sort.split(',').join(' ')
+//     query = query.sort(sortby)
+// } else {
+//     query = query.sort('-createdAt')
+// }
 
-        //sorting
-        // if (req.query.sort) {
-        //     const sortby = req.query.sort.split(',').join(' ')
-        //     query = query.sort(sortby)
-        // } else {
-        //     query = query.sort('-createdAt')
-        // }
+// //fieldslimiting
+// if (req.query.fields) {
+//     const reqfields = req.query.fields.split(',').join(' ')
+//     console.log(reqfields)
+//     query = query.select(reqfields)
+// } else {
+//     query = query.select('name summary coverimage entryprice ratings')
 
-        // //fieldslimiting
-        // if (req.query.fields) {
-        //     const reqfields = req.query.fields.split(',').join(' ')
-        //     console.log(reqfields)
-        //     query = query.select(reqfields)
-        // } else {
-        //     query = query.select('name summary coverimage entryprice ratings')
+// }
 
-        // }
+//pagination
 
-        //pagination
+// const page = req.query.page * 1 || 1;
+// const limit = req.query.limit * 1 || 2;
+// const skip = (page - 1) * limit;
 
-        // const page = req.query.page * 1 || 1;
-        // const limit = req.query.limit * 1 || 2;
-        // const skip = (page - 1) * limit;
+// query = query.skip(skip).limit(limit);
 
-        // query = query.skip(skip).limit(limit);
+// if (req.query.page) {
+//   const noofgames = await Game.countDocuments();
+//   if (skip > noofgames) throw new Error('the page does not exist');
+// }
+//sending response
 
-        // if (req.query.page) {
-        //   const noofgames = await Game.countDocuments();
-        //   if (skip > noofgames) throw new Error('the page does not exist');
-        // }
-        //sending response
-
-        // const allgames = await Game.find().where('name').equals('Dota-2').where('ratings').equals(4.1)
-        // const allgames = await Game.find()
+// const allgames = await Game.find().where('name').equals('Dota-2').where('ratings').equals(4.1)
+// const allgames = await Game.find()
